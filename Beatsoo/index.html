@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Beatsoo</title>
+  <link rel="stylesheet" href="base.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+  <script src="resources/js/lib/Paper.js/dist/paper-full.js" type="text/javascript" charset="utf-8"></script>
+  <script src="resources/js/lib/howler.js/dist/howler.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/paperscript" canvas="myCanvas">
+  var circles = [];
+  var imsoo1 = new Raster('imsoo-1');
+  imsoo1.visible = false;
+  var imsoo2 = new Raster('imsoo-2');
+  imsoo2.visible = false;
+  var maxPoint = new Point(view.size.width, view.size.height);
+  var inst = new PointText({
+      point: maxPoint/2,
+      content: 'Press any key to jam',
+      fillColor: 'orange',
+      fontFamily: 'Roboto',
+      fontSize: 24,
+      justification: 'center'
+  });
+  var isStarted = false;
+  var keyData = {
+    q: {
+      sound: new Howl({
+        src: ['resources/sounds/bubbles.mp3']
+      }),
+      color: '#1abc9c'
+    },
+    w: {
+      sound: new Howl({
+        src: ['resources/sounds/clay.mp3']
+      }),
+      color: '#2ecc71'
+    },
+    e: {
+      sound: new Howl({
+        src: ['resources/sounds/confetti.mp3']
+      }),
+      color: '#3498db'
+    },
+    r: {
+      sound: new Howl({
+        src: ['resources/sounds/corona.mp3']
+      }),
+      color: '#9b59b6'
+    },
+    t: {
+      sound: new Howl({
+        src: ['resources/sounds/dotted-spiral.mp3']
+      }),
+      color: '#34495e'
+    },
+    y: {
+      sound: new Howl({
+        src: ['resources/sounds/flash-1.mp3']
+      }),
+      color: '#16a085'
+    },
+    u: {
+      sound: new Howl({
+        src: ['resources/sounds/flash-2.mp3']
+      }),
+      color: '#27ae60'
+    },
+    i: {
+      sound: new Howl({
+        src: ['resources/sounds/flash-3.mp3']
+      }),
+      color: '#2980b9'
+    },
+    o: {
+      sound: new Howl({
+        src: ['resources/sounds/glimmer.mp3']
+      }),
+      color: '#8e44ad'
+    },
+    p: {
+      sound: new Howl({
+        src: ['resources/sounds/moon.mp3']
+      }),
+      color: '#2c3e50'
+    },
+    a: {
+      sound: new Howl({
+        src: ['resources/sounds/pinwheel.mp3']
+      }),
+      color: '#f1c40f'
+    },
+    s: {
+      sound: new Howl({
+        src: ['resources/sounds/piston-1.mp3']
+      }),
+      color: '#e67e22'
+    },
+    d: {
+      sound: new Howl({
+        src: ['resources/sounds/piston-2.mp3']
+      }),
+      color: '#e74c3c'
+    },
+    f: {
+      sound: new Howl({
+        src: ['resources/sounds/prism-1.mp3']
+      }),
+      color: '#95a5a6'
+    },
+    g: {
+      sound: new Howl({
+        src: ['resources/sounds/prism-2.mp3']
+      }),
+      color: '#f39c12'
+    },
+    h: {
+      sound: new Howl({
+        src: ['resources/sounds/prism-3.mp3']
+      }),
+      color: '#d35400'
+    },
+    j: {
+      sound: new Howl({
+        src: ['resources/sounds/splits.mp3']
+      }),
+      color: '#1abc9c'
+    },
+    k: {
+      sound: new Howl({
+        src: ['resources/sounds/squiggle.mp3']
+      }),
+      color: '#2ecc71'
+    },
+    l: {
+      sound: new Howl({
+        src: ['resources/sounds/strike.mp3']
+      }),
+      color: '#3498db'
+    },
+    z: {
+      sound: new Howl({
+        src: ['resources/sounds/suspension.mp3']
+      }),
+      color: '#9b59b6'
+    },
+    x: {
+      sound: new Howl({
+        src: ['resources/sounds/timer.mp3']
+      }),
+      color: '#34495e'
+    },
+    c: {
+      sound: new Howl({
+        src: ['resources/sounds/ufo.mp3']
+      }),
+      color: '#16a085'
+    },
+    v: {
+      sound: new Howl({
+        src: ['resources/sounds/veil.mp3']
+      }),
+      color: '#27ae60'
+    },
+    b: {
+      sound: new Howl({
+        src: ['resources/sounds/wipe.mp3']
+      }),
+      color: '#2980b9'
+    },
+    n: {
+      sound: new Howl({
+        src: ['resources/sounds/zig-zag.mp3']
+      }),
+      color: '#8e44ad'
+    },
+    m: {
+      sound: new Howl({
+        src: ['resources/sounds/moon.mp3']
+      }),
+      color: '#2c3e50'
+    }
+  }
+
+  var okeyData = {
+    1: {
+      sound: new Howl({
+        src: ['resources/sounds/okayBuddy1.mp3']
+      }),
+      color: 'yellow'
+   },
+    2: {
+      sound: new Howl({
+        src: ['resources/sounds/okayBuddy2.mp3']
+      }),
+      color: 'orange'
+   },
+    3: {
+      sound: new Howl({
+        src: ['resources/sounds/okayBuddy3.mp3']
+      }),
+      color: 'red'
+   }
+  }
+  var ok = 0;
+  // OKAY BUDDY
+  function onMouseDown(event) {
+    var okayCircle = new Path.Circle(event.point, 350);
+    okayCircle.fillColor = okeyData[++ok].color;
+    okayCircle.blendMode = 'multiply';
+
+    i2c = imsoo2.clone();
+    i2c.position = event.point;
+    i2c.visible = true;
+
+    okeyData[ok].sound.play();
+
+    var pair = { 
+        circle: okayCircle,
+        pic: i2c 
+    };
+    circles.push(pair);
+    if (ok === 3){
+        ok =0 ;
+    }
+  }
+  //IMSOOFACE
+  function onKeyDown(event) {
+    if (inst) {
+      isStarted = true;
+    }
+    if (keyData[event.key]) {
+      // Checks view size and generates a point within bounds
+      var randomPoint = Point.random();
+      var point = maxPoint * randomPoint;
+      var newCircle = new Path.Circle(point, 350);
+      newCircle.fillColor = keyData[event.key].color;
+      newCircle.blendMode = 'multiply';
+
+      i1c = imsoo1.clone();
+      i1c.position = point;
+      i1c.visible = true;
+      
+      keyData[event.key].sound.play();
+      // Stores circle, img in dict
+      var pair = { 
+        circle: newCircle,
+        pic: i1c 
+      };
+      circles.push(pair);
+    }
+
+  }
+  
+  function onFrame(e) {
+    for (var i = 0; i < circles.length; i++) {
+      // Remove instructions on first press
+      if (inst) {
+        inst.scale(1.1);
+        inst.fillColor.alpha -= .05;
+        if (inst.fillColor.alpha == 0) {
+          inst.remove();
+        }
+      }
+      circles[i].circle.fillColor.hue += 1;
+      circles[i].circle.scale(.9);
+      circles[i].pic.scale(.9);
+      // Cleans array
+      if (circles[i].circle.area < 1) {
+        circles[i].circle.remove();
+        circles[i].pic.remove();
+        circles.splice(i, 1);
+        i--;
+      }
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <img id="imsoo-1" class="visuallyhidden" src="resources/img/imsoo1.jpg" alt="imsoo">
+  <img id="imsoo-2" class="visuallyhidden" src="resources/img/imsoo2.jpg" alt="imsoo">
+  <canvas id="myCanvas" resize></canvas>
+</body>
+
+</html>
